@@ -35,7 +35,7 @@ docker-push: docker-dep
 # Submodule checkout
 submodule: git-dep
 	@echo "Checking out submodules"
-	@${GIT} submodule update --init --recursive
+	@${GIT} submodule update --init --recursive --remote
 
 # Check for docker
 docker-dep:
