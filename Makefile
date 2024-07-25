@@ -32,6 +32,11 @@ docker-push: docker-dep
 	@echo push docker image: ${BUILD_TAG}
 	@${DOCKER} push ${BUILD_TAG}
 
+# Update submodule to the latest version
+submodule-update: git-dep
+	@echo "Updating submodules"
+	@${GIT} submodule foreach git pull origin master
+
 # Submodule checkout
 submodule: git-dep
 	@echo "Checking out submodules"
