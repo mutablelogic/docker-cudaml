@@ -2,12 +2,8 @@
 # https://catalog.ngc.nvidia.com/orgs/nvidia/containers/l4t-cuda/tags
 ARG CUDA_VERSION=12.2.12
 ARG CUDA_DOCKER_ARCH=arm64
-#ARG BASE_CUDA_DEV_CONTAINER=nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION}-devel
-#ARG BASE_CUDA_RUN_CONTAINER=nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION}-runtime
-
-# Test
-ARG BASE_CUDA_DEV_CONTAINER=nvcr.io/nvidia/l4t-cuda:12.2.2-devel-arm64-ubuntu22.04
-ARG BASE_CUDA_RUN_CONTAINER=nvcr.io/nvidia/l4t-cuda:12.2.2-devel-arm64-ubuntu22.04
+ARG BASE_CUDA_DEV_CONTAINER=nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION}-devel
+ARG BASE_CUDA_RUN_CONTAINER=nvcr.io/nvidia/l4t-cuda:${CUDA_VERSION}-runtime
 
 # Setup build container
 FROM ${BASE_CUDA_DEV_CONTAINER} AS build
