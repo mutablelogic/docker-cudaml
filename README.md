@@ -13,13 +13,14 @@ to start the Llama server:
 ```bash
 docker run \
   --runtime nvidia --gpus all \
-  -v /data:/models -p 8080:8080 \ 
-  --env LD_LIBRARY_PATH=/usr/local/cuda-12.5/compat \
+  -v /data:/models -p 8080:8080 \
   ghcr.io/mutablelogic/llamacpp-linux-arm64:0.0.3 \
-  -m /models/mistral-7b-v0.1.Q4_K_M.gguf
+  --host 0.0.0.0 \
+  --model /models/mistral-7b-v0.1.Q4_K_M.gguf -ngl 32 --ctx-size 4096 --temp 0.7 --repeat_penalty 1.1 \
+  --in-prefix "<|im_start|>" --in-suffix "<|im_end|>"
 ```
 
-(I will get rid of the LD_LIBRARY_PATH argument shortly). You can then access the Llama server on port 8080.
+You can then access the Llama server on port 8080.
 
 ## Building
 
