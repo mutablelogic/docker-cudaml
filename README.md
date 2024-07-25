@@ -24,4 +24,5 @@ DOCKER_REGISTRY=docker.io/user make docker && make docker-push
 ## Status
 
 Requires the ability to update the llama.cpp submodule to the master branch.
-Currently the github action uses a self-hosted runner to build the arm64 image.
+Currently the github action uses a self-hosted runner to build the arm64 image. The runner
+seems to need about 12GB of memory to build the image.

@@ -20,7 +20,7 @@ docker: docker-dep submodule
 		--build-arg OS=${OS} \
 		--build-arg SOURCE=${BUILD_MODULE} \
 		--build-arg VERSION=${VERSION} \
-		-f Dockerfile .
+		-f Dockerfile.${ARCH} .
 
 # Build llama-server
 llama-server: submodule
