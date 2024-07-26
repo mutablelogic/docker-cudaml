@@ -1,5 +1,6 @@
 ARG UBUNTU_VERSION=22.04
 ARG CUDA_VERSION=12.5.1
+ARG CUDA_MAIN_VERSION=12.5
 ARG BASE_CUDA_DEV_CONTAINER=nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${UBUNTU_VERSION}
 ARG BASE_CUDA_RUN_CONTAINER=nvidia/cuda:${CUDA_VERSION}-runtime-ubuntu${UBUNTU_VERSION}
 
@@ -22,5 +23,6 @@ RUN apt-get -y update && apt-get  -y install libcurl4-openssl-dev libgomp1 curl
 COPY --from=build /app/llama.cpp/llama-server /llama-server
 
 # Expose
+ENV LD_LIBRARY_PATH=/usr/local/cuda-${CUDA_MAIN_VERSION}/compat:$LD_LIBRARY_PATH
 HEALTHCHECK CMD [ "curl", "-f", "http://localhost:8080/health" ]
 ENTRYPOINT [ "/llama-server" ]
