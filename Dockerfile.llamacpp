@@ -1,0 +1,18 @@
+# Dockerfile to create a llama.cpp image
+ARG ARCH
+ARG BASE_IMAGE_BUILD
+ARG BASE_IMAGE_RUNTIME
+
+# build image
+FROM --platform=${ARCH} ${BASE_IMAGE_BUILD} AS build
+RUN apt-get -y install libcurl4-openssl-dev
+WORKDIR /app
+COPY . .
+RUN GGML_CUDA=1 LLAMA_CURL=1 make -j$(nproc) llama-server
+
+# runtime image
+FROM --platform=${ARCH} ${BASE_IMAGE_RUNTIME} AS runtime
+RUN apt-get -y install libcurl4 curl
+COPY --from=build /app/llama.cpp/llama-server /usr/local/bin/llama-server
+HEALTHCHECK CMD [ "curl", "-f", "http://localhost:8080/health" ]
+ENTRYPOINT [ "/usr/local/bin/llama-server" ]

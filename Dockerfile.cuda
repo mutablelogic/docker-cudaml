@@ -1,0 +1,62 @@
+# Dockerfile to create a base image for Jetson ARM64 devices
+# https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#ubuntu
+# will build development container or runtime container (without build tools and
+# includes)
+
+# ubuntu2204
+ARG DISTRO=ubuntu2204
+
+# cuda 12.6
+ARG CUDA=12-6
+
+# x86_64, arm64
+ARG ARCH=arm64
+
+# build, runtime
+ARG TARGET=build
+
+# base image is ubuntu 22.04
+FROM --platform=${ARCH} ubuntu:22.04 AS base
+ARG DISTRO
+ARG ARCH
+ARG CUDA
+
+# build image
+FROM base AS build
+ARG DISTRO
+ARG ARCH
+ARG CUDA
+
+RUN apt-get update \
+&& apt-get -y install ca-certificates gnupg wget build-essential git pkg-config \
+&& wget https://developer.download.nvidia.com/compute/cuda/repos/${DISTRO}/${ARCH}/cuda-keyring_1.1-1_all.deb \
+&& dpkg -i cuda-keyring_1.1-1_all.deb \
+&& rm cuda-keyring_1.1-1_all.deb \
+&& echo "deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] https://developer.download.nvidia.com/compute/cuda/repos/${DISTRO}/${ARCH}/ /" | tee /etc/apt/sources.list.d/cuda-${DISTRO}-${ARCH}.list \
+&& apt-get update \
+&& apt-get -y install cuda-toolkit-${CUDA} \
+&& apt-get clean
+
+# runtime image
+FROM base AS runtime
+ARG DISTRO
+ARG ARCH
+ARG CUDA
+
+RUN apt-get update \
+  && apt-get -y install ca-certificates gnupg wget \
+  && wget https://developer.download.nvidia.com/compute/cuda/repos/${DISTRO}/${ARCH}/cuda-keyring_1.1-1_all.deb \
+  && dpkg -i cuda-keyring_1.1-1_all.deb \
+  && rm cuda-keyring_1.1-1_all.deb \
+  && echo "deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] https://developer.download.nvidia.com/compute/cuda/repos/${DISTRO}/${ARCH}/ /" | tee /etc/apt/sources.list.d/cuda-${DISTRO}-${ARCH}.list \
+  && apt-get update \
+  && apt-get -y install cuda-libraries-${CUDA} \  
+  && apt-get clean
+
+FROM ${TARGET}
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:/usr/local/cuda/lib64/stubs
+ENV PATH=/usr/local/cuda/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV NVIDIA_ARCH="${ARCH}"
+ENV NVIDIA_CUDA_VERSION="${CUDA}"
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+ENV NVIDIA_VISIBLE_DEVICES=all

@@ -6,21 +6,37 @@ GIT=$(shell which git)
 ARCH ?= $(shell arch | tr A-Z a-z | sed 's/x86_64/amd64/' | sed 's/i386/amd64/' | sed 's/armv7l/arm/' | sed 's/aarch64/arm64/')
 OS ?= $(shell uname | tr A-Z a-z)
 VERSION ?= $(shell git describe --tags --always | sed 's/^v//')
-DOCKER_REGISTRY ?= ghcr.io/djthorpe
 
-# Set docker tag
-BUILD_TAG := ${DOCKER_REGISTRY}/llamacpp-${OS}-${ARCH}:${VERSION}
+# Docker tags
+DOCKER_REGISTRY ?= ghcr.io/mutablelogic
+DOCKER_TAG_BASE_BUILD="${DOCKER_REGISTRY}/ubuntu-${OS}-${ARCH}-cuda-dev:${VERSION}"
+DOCKER_TAG_BASE_RUNTIME="${DOCKER_REGISTRY}/ubuntu-${OS}-cuda-${ARCH}-cuda-rt:${VERSION}"
+DOCKER_TAG_LLAMACPP="${DOCKER_REGISTRY}/llamacpp-${OS}-${ARCH}:${VERSION}"
 
-# Build docker container
-docker: docker-dep submodule
-	@echo build docker image: ${BUILD_TAG} for ${OS}/${ARCH}
+# Base images for building and running CUDA containers
+docker-base: docker-dep
+	@echo "Building ${DOCKER_TAG_BASE_BUILD}"
 	@${DOCKER} build \
-		--tag ${BUILD_TAG} \
+	  --tag ${DOCKER_TAG_BASE_BUILD} \
+	  --build-arg ARCH=${ARCH} \
+	  --build-arg TARGET=build \
+	  -f Dockerfile.cuda .
+	@echo "Building ${DOCKER_TAG_BASE_RUNTIME}"
+	@${DOCKER} build \
+	  --tag ${DOCKER_TAG_BASE_RUNTIME} \
+	  --build-arg ARCH=${ARCH} \
+	  --build-arg TARGET=runtime \
+	  -f Dockerfile.cuda .
+
+# Build docker container - assume we need to build the base images?
+docker: docker-dep docker-base
+	@echo "Building ${DOCKER_TAG_LLAMACPP}"
+	@${DOCKER} build \
+		--tag ${DOCKER_TAG_LLAMACPP} \
 		--build-arg ARCH=${ARCH} \
-		--build-arg OS=${OS} \
-		--build-arg SOURCE=${BUILD_MODULE} \
-		--build-arg VERSION=${VERSION} \
-		-f Dockerfile.${ARCH} .
+		--build-arg BASE_IMAGE_BUILD=${DOCKER_TAG_BASE_BUILD} \
+		--build-arg BASE_IMAGE_RUNTIME=${DOCKER_TAG_BASE_RUNTIME} \
+		-f Dockerfile.llamacpp .
 
 # Build llama-server
 llama-server: submodule
@@ -29,8 +45,10 @@ llama-server: submodule
 	
 # Push docker container
 docker-push: docker-dep 
-	@echo push docker image: ${BUILD_TAG}
-	@${DOCKER} push ${BUILD_TAG}
+	@echo push docker images
+	@${DOCKER} push ${DOCKER_TAG_BASE_BUILD}
+	@${DOCKER} push ${DOCKER_TAG_BASE_RUNTIME}
+	@${DOCKER} push ${DOCKER_TAG_LLAMACPP}
 
 # Update submodule to the latest version
 submodule-update: git-dep
