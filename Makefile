@@ -9,8 +9,8 @@ VERSION ?= $(shell git describe --tags --always | sed 's/^v//')
 
 # Docker tags
 DOCKER_REGISTRY ?= ghcr.io/mutablelogic
-DOCKER_TAG_BASE_BUILD="${DOCKER_REGISTRY}/ubuntu-${OS}-${ARCH}-cuda-dev:${VERSION}"
-DOCKER_TAG_BASE_RUNTIME="${DOCKER_REGISTRY}/ubuntu-${OS}-cuda-${ARCH}-cuda-rt:${VERSION}"
+DOCKER_TAG_BASE_BUILD="${DOCKER_REGISTRY}/cuda-dev-${OS}-${ARCH}:${VERSION}"
+DOCKER_TAG_BASE_RUNTIME="${DOCKER_REGISTRY}/cuda-rt-${OS}-${ARCH}:${VERSION}"
 DOCKER_TAG_LLAMACPP="${DOCKER_REGISTRY}/llamacpp-${OS}-${ARCH}:${VERSION}"
 
 # Base images for building and running CUDA containers
@@ -18,13 +18,13 @@ docker-base: docker-dep
 	@echo "Building ${DOCKER_TAG_BASE_BUILD}"
 	@${DOCKER} build \
 	  --tag ${DOCKER_TAG_BASE_BUILD} \
-	  --build-arg ARCH=${ARCH} \
+	  --build-arg ARCH=$(shell echo ${ARCH} | sed 's/amd64/x86_64/') \
 	  --build-arg TARGET=build \
 	  -f Dockerfile.cuda .
 	@echo "Building ${DOCKER_TAG_BASE_RUNTIME}"
 	@${DOCKER} build \
 	  --tag ${DOCKER_TAG_BASE_RUNTIME} \
-	  --build-arg ARCH=${ARCH} \
+	  --build-arg ARCH=$(shell echo ${ARCH} | sed 's/amd64/x86_64/') \
 	  --build-arg TARGET=runtime \
 	  -f Dockerfile.cuda .
 

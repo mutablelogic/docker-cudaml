@@ -16,7 +16,7 @@ ARG ARCH=arm64
 ARG TARGET=build
 
 # base image is ubuntu 22.04
-FROM --platform=${ARCH} ubuntu:22.04 AS base
+FROM ubuntu:22.04 AS base
 ARG DISTRO
 ARG ARCH
 ARG CUDA
