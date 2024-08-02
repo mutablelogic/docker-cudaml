@@ -1,7 +1,6 @@
 # Dockerfile to create a base image for Jetson ARM64 devices
 FROM ubuntu:22.04 AS base
 
-
 FROM --platform=arm64 base AS dev
 
 RUN apt-key adv --fetch-key https://repo.download.nvidia.com/jetson/jetson-ota-public.asc \
