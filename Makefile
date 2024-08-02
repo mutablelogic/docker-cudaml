@@ -41,7 +41,7 @@ docker: docker-dep docker-base
 # Build llama-server
 llama-server: submodule
 	@echo "Building llama-server"
-	@cd llama.cpp && make -j4 llama-server
+	@cd llama.cpp && make -j$(nproc) llama-server
 	
 # Push docker container
 docker-push: docker-dep 
