@@ -58,3 +58,31 @@ jobs:
         run: |
           git checkout v${{ needs.var.outputs.tag }}
           make docker && make docker-push
+  manifest:
+    name: Create manifest
+    needs: 
+      - build
+      - var
+    runs-on: ubuntu-latest
+    steps:
+      - name: cuda-dev
+        uses: int128/docker-manifest-create-action@v2
+        with:
+          tags: ${{ needs.var.outputs.image-cuda-dev }}@${{ needs.var.outputs.tag }}
+          sources: |
+            ${{ needs.var.outputs.image-cuda-dev }}-linux-amd64@${{ needs.var.outputs.tag }}
+            ${{ needs.var.outputs.image-cuda-dev }}-linux-arm64@${{ needs.var.outputs.tag }}
+      - name: cuda-rt
+        uses: int128/docker-manifest-create-action@v2
+        with:
+          tags: ${{ needs.var.outputs.image-cuda-runtime }}@${{ needs.var.outputs.tag }}
+          sources: |
+            ${{ needs.var.outputs.image-cuda-runtime }}-linux-amd64@${{ needs.var.outputs.tag }}
+            ${{ needs.var.outputs.image-cuda-runtime }}-linux-arm64@${{ needs.var.outputs.tag }}
+      - name: llamacpp
+        uses: int128/docker-manifest-create-action@v2
+        with:
+          tags: ${{ needs.var.outputs.image-llamacpp }}@${{ needs.var.outputs.tag }}
+          sources: |
+            ${{ needs.var.outputs.image-llamacpp }}-linux-amd64@${{ needs.var.outputs.tag }}
+            ${{ needs.var.outputs.image-llamacpp }}-linux-arm64@${{ needs.var.outputs.tag }}                        
