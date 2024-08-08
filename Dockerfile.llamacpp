@@ -9,7 +9,8 @@ ARG ARCH
 ARG BASE_IMAGE_BUILD
 ARG BASE_IMAGE_RUNTIME
 
-RUN apt-get -y install libcurl4-openssl-dev
+RUN apt-get update \
+ && apt-get -y install libcurl4-openssl-dev
 WORKDIR /app
 COPY . .
 RUN LLAMA_CURL=1 GGML_CUDA=1 CUDA_DOCKER_ARCH=all make -j$(nproc) llama-server
