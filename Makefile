@@ -17,6 +17,15 @@ DOCKER_TAG_BASE_BUILD="${DOCKER_REGISTRY}/cuda-dev-${OS}-${ARCH}:${VERSION}"
 DOCKER_TAG_BASE_RUNTIME="${DOCKER_REGISTRY}/cuda-rt-${OS}-${ARCH}:${VERSION}"
 DOCKER_TAG_LLAMACPP="${DOCKER_REGISTRY}/llamacpp-${OS}-${ARCH}:${VERSION}"
 
+# ONNXRuntime flags 
+ONNXRUNTIME_FLAGS := --config Release --build_shared_lib
+
+# CUDA
+ifdef CUDA_HOME
+  GGML_CUDA := 1
+  ONNXRUNTIME_FLAGS += --use_cuda --cuda_home=${CUDA_HOME} --cudnn_home=${CUDA_HOME}
+endif
+
 # Base images for building and running CUDA containers
 docker-base: docker-dep
 	@echo "Building ${DOCKER_TAG_BASE_BUILD}"
@@ -49,7 +58,11 @@ llamacpp: submodule-checkout
 
 onnxruntime: submodule-checkout
 	@echo "Building onnxruntime"
-	@cd onnxruntime && ./build.sh --config Release --build_shared_lib --parallel --compile_no_warning_as_error --skip_submodule_sync
+	@cd onnxruntime && ./build.sh \
+	  --parallel \
+	  --compile_no_warning_as_error \
+	  --skip_submodule_sync \
+	  ${ONNXRUNTIME_FLAGS}
 
 # Push docker container
 docker-push: docker-dep 

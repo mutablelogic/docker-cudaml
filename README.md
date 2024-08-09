@@ -24,7 +24,14 @@ You can then access the Llama server on port 8080.
 
 ## Building
 
-The following will build the docker image and push to the repository:
+To build either the llama.cpp library or the onnxruntime library:
+
+```bash
+CUDA_HOME=/usr/local/cuda make llamacpp onnxruntime
+```
+
+You can omit the CUDA_HOME environment variable if you don't want to build with CUDA support.
+The following will build a docker image and push to the repository:
 
 ```bash
 git checkout git@github.com:mutablelogic/docker-llamacpp.git
