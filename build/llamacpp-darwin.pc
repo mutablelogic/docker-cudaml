@@ -1,0 +1,4 @@
+Name: llamacpp-darwin.pc
+Description: No description
+Version: 0.0.0
+Libs: -framework Accelerate -framework Metal -framework Foundation -framework CoreGraphics

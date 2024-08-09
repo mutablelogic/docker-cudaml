@@ -1,6 +1,7 @@
 # Paths to packages
 DOCKER=$(shell which docker)
 GIT=$(shell which git)
+GO=$(shell which go)
 
 # Other paths
 ROOT_PATH := $(CURDIR)
@@ -25,6 +26,16 @@ ifdef CUDA_HOME
   GGML_CUDA := 1
   ONNXRUNTIME_FLAGS += --use_cuda --cuda_home=${CUDA_HOME} --cudnn_home=${CUDA_HOME}
 endif
+
+# Generate the pkg-config files
+generate: mkdir go-tidy
+	@echo "Generating pkg-config"
+	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} go generate ./sys/llamacpp
+
+# Test llamacpp bindings
+test: generate llamacpp
+	@echo "Running tests (sys)"
+	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test -v ./sys/llamacpp/...
 
 # Base images for building and running CUDA containers
 docker-base: docker-dep
@@ -51,10 +62,10 @@ docker: docker-dep docker-base
 		--build-arg BASE_IMAGE_RUNTIME=${DOCKER_TAG_BASE_RUNTIME} \
 		-f Dockerfile.llamacpp .
 
-# Build llama-server
+# Build llama libraries
 llamacpp: submodule-checkout
 	@echo "Building llamacpp"
-	@cd llama.cpp && make -j$(nproc) libllama.a
+	@cd llama.cpp && make -j$(nproc) libllama.a libggml.a
 
 onnxruntime: submodule-checkout
 	@echo "Building onnxruntime"
@@ -95,8 +106,13 @@ mkdir:
 	@echo Mkdir ${BUILD_DIR}
 	@install -d ${BUILD_DIR}
 
+# go mod tidy
+go-tidy: go-dep
+	@echo Tidy
+	@go mod tidy
+
 # Clean
-clean: submodule-clean
+clean: submodule-clean go-tidy
 	@echo "Cleaning"
 	@rm -rf ${BUILD_DIR}
 	
@@ -107,3 +123,7 @@ docker-dep:
 # Check for git
 git-dep:
 	@test -f "${GIT}" && test -x "${GIT}"  || (echo "Missing git binary" && exit 1)
+
+# Check for go
+go-dep:
+	@test -f "${GO}" && test -x "${GO}"  || (echo "Missing go binary" && exit 1)
