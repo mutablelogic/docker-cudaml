@@ -2,6 +2,10 @@
 DOCKER=$(shell which docker)
 GIT=$(shell which git)
 
+# Other paths
+ROOT_PATH := $(CURDIR)
+BUILD_DIR := build
+
 # Set OS and Architecture
 ARCH ?= $(shell arch | tr A-Z a-z | sed 's/x86_64/amd64/' | sed 's/i386/amd64/' | sed 's/armv7l/arm/' | sed 's/aarch64/arm64/')
 OS ?= $(shell uname | tr A-Z a-z)
@@ -39,7 +43,7 @@ docker: docker-dep docker-base
 		-f Dockerfile.llamacpp .
 
 # Build llama-server
-llama-server: submodule
+llama-server: submodule-checkout
 	@echo "Building llama-server"
 	@cd llama.cpp && make -j$(nproc) llama-server
 	
@@ -56,10 +60,20 @@ submodule-update: git-dep
 	@${GIT} submodule foreach git pull origin master
 
 # Submodule checkout
-submodule: git-dep
+submodule-checkout: git-dep
 	@echo "Checking out submodules"
 	@${GIT} submodule update --init --recursive --remote
 
+# Make build directory
+mkdir:
+	@echo Mkdir ${BUILD_DIR}
+	@install -d ${BUILD_DIR}
+
+# Clean
+clean: submodule-clean
+	@echo "Cleaning"
+	@rm -rf ${BUILD_DIR}
+	
 # Check for docker
 docker-dep:
 	@test -f "${DOCKER}" && test -x "${DOCKER}"  || (echo "Missing docker binary" && exit 1)
