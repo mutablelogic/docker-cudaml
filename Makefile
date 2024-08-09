@@ -66,7 +66,7 @@ submodule-update: git-dep
 # Submodule checkout
 submodule-checkout: git-dep
 	@echo "Checking out submodules"
-	@${GIT} submodule update --init --recursive --remote
+	@${GIT} submodule update --init --remote
 
 # Submodule clean
 submodule-clean: git-dep
