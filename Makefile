@@ -43,10 +43,14 @@ docker: docker-dep docker-base
 		-f Dockerfile.llamacpp .
 
 # Build llama-server
-llama-server: submodule-checkout
-	@echo "Building llama-server"
-	@cd llama.cpp && make -j$(nproc) llama-server
-	
+llamacpp: submodule-checkout
+	@echo "Building llamacpp"
+	@cd llama.cpp && make -j$(nproc) libllama.a
+
+onnxruntime: submodule-checkout
+	@echo "Building onnxruntime"
+	@cd onnxruntime && ./build.sh --config Release --build_shared_lib --parallel --compile_no_warning_as_error --skip_submodule_sync
+
 # Push docker container
 docker-push: docker-dep 
 	@echo push docker images
