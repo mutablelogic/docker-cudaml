@@ -64,6 +64,15 @@ submodule-checkout: git-dep
 	@echo "Checking out submodules"
 	@${GIT} submodule update --init --recursive --remote
 
+# Submodule clean
+submodule-clean: git-dep
+	@echo "Cleaning submodules"
+	@${GIT} reset --hard
+	@${GIT} submodule sync --recursive
+	@${GIT} submodule update --init --force --recursive
+	@${GIT} clean -ffdx
+	@${GIT} submodule foreach --recursive git clean -ffdx	
+	
 # Make build directory
 mkdir:
 	@echo Mkdir ${BUILD_DIR}
