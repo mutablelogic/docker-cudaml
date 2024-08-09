@@ -44,7 +44,7 @@ ARG ARCH
 ARG CUDA
 
 RUN apt-get update \
-  && apt-get -y install ca-certificates gnupg wget libgomp1 \
+  && apt-get -y install ca-certificates gnupg wget \
   && wget https://developer.download.nvidia.com/compute/cuda/repos/${DISTRO}/${ARCH}/cuda-keyring_1.1-1_all.deb \
   && dpkg -i cuda-keyring_1.1-1_all.deb \
   && rm cuda-keyring_1.1-1_all.deb \
