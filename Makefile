@@ -54,13 +54,9 @@ docker-cuda: docker-dep
 
 # Build docker container - assume we need to build the base images?
 docker-cuda-push: docker-cuda
-	@echo "Building ${DOCKER_TAG_LLAMACPP}"
-	@${DOCKER} build \
-		--tag ${DOCKER_TAG_LLAMACPP} \
-		--build-arg ARCH=${ARCH} \
-		--build-arg BASE_IMAGE_BUILD=${DOCKER_TAG_BASE_BUILD} \
-		--build-arg BASE_IMAGE_RUNTIME=${DOCKER_TAG_BASE_RUNTIME} \
-		-f Dockerfile.llamacpp .
+	@echo push docker images
+	@${DOCKER} push ${DOCKER_TAG_BASE_BUILD}
+	@${DOCKER} push ${DOCKER_TAG_BASE_RUNTIME}
 
 # Build llama libraries
 llamacpp: submodule-checkout

@@ -13,7 +13,7 @@ RUN apt-get update \
  && apt-get -y install libcurl4-openssl-dev
 WORKDIR /app
 COPY . .
-RUN LLAMA_CURL=1 GGML_CUDA=1 CUDA_DOCKER_ARCH=all make -j$(nproc) llama-server
+RUN LLAMA_CURL=1 GGML_CUDA=1 CUDA_DOCKER_ARCH=all make -j$(nproc) llamacpp
 
 # runtime image
 FROM --platform=${ARCH} ${BASE_IMAGE_RUNTIME} AS runtime
