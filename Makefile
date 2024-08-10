@@ -38,7 +38,7 @@ test: generate llamacpp
 	@PKG_CONFIG_PATH=${ROOT_PATH}/${BUILD_DIR} ${GO} test -v ./sys/llamacpp/...
 
 # Base images for building and running CUDA containers
-docker-base: docker-dep
+docker-cuda: docker-dep
 	@echo "Building ${DOCKER_TAG_BASE_BUILD}"
 	@${DOCKER} build \
 	  --tag ${DOCKER_TAG_BASE_BUILD} \
@@ -53,7 +53,7 @@ docker-base: docker-dep
 	  -f Dockerfile.cuda .
 
 # Build docker container - assume we need to build the base images?
-docker: docker-dep docker-base
+docker-cuda-push: docker-cuda
 	@echo "Building ${DOCKER_TAG_LLAMACPP}"
 	@${DOCKER} build \
 		--tag ${DOCKER_TAG_LLAMACPP} \
