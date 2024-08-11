@@ -1,54 +1,10 @@
-# docker-llamacpp
+# docker-cudaml
 
-Repository which creates a llama.cpp server in a docker container, for amd64 and arm64,
-the latter of which is missing from the "official" repository.
+Repository which has some base images for running CUDA and cuDNN on Intel and ARM architectures.
 
-## Usage
+## CUDA Images
 
-If you want to use an NVIDIA GPU, then install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) first.
+If you want to use an NVIDIA GPU, then install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) first. You can use the following two images as the basis for your own images:
 
-You should put your `.gguf` model files in a directory called `/data`. Then use the following command
-to start the Llama server:
-
-```bash
-docker run \
-  --runtime nvidia --gpus all \
-  -v /data:/models -p 8080:8080 \
-  ghcr.io/mutablelogic/llamacpp-linux-arm64:0.0.3 \
-  --host 0.0.0.0 \
-  --model /models/mistral-7b-v0.1.Q4_K_M.gguf -ngl 32 --ctx-size 4096 --temp 0.7 --repeat_penalty 1.1 \
-  --in-prefix "<|im_start|>" --in-suffix "<|im_end|>"
-```
-
-You can then access the Llama server on port 8080.
-
-## Building
-
-To build either the llama.cpp library or the onnxruntime library:
-
-```bash
-CUDA_HOME=/usr/local/cuda make llamacpp onnxruntime
-```
-
-You can omit the CUDA_HOME environment variable if you don't want to build with CUDA support.
-The following will build a docker image and push to the repository:
-
-```bash
-git checkout git@github.com:mutablelogic/docker-llamacpp.git
-cd docker-llamacpp
-make docker && make docker-push
-```
-
-Set the environment variable DOCKER_REGISTRY to the name of the registry to push to, e.g.:
-
-```bash
-git checkout git@github.com:mutablelogic/docker-llamacpp.git
-cd docker-llamacpp
-DOCKER_REGISTRY=docker.io/user make docker && make docker-push
-```
-
-## Status
-
-Requires the ability to update the llama.cpp submodule to the master branch.
-Currently the github action uses a self-hosted runner to build the arm64 image. The runner
-seems to need about 12GB of memory to build the image.
+* `ghcr.io/mutablelogic/cuda-dev:1.0.2` - This image is based on Ubuntu 22.04 and includes the 12.6 CUDA toolkit and compiler build tools
+* `ghcr.io/mutablelogic/cuda-rt:1.0.2` - This image is based on Ubuntu 22.04 and includes the 12.6 CUDA runtime libraries.
